@@ -1,5 +1,6 @@
 #include "OrgChart.hpp"
 #include<algorithm>
+#include<queue>
 
 using namespace std;
 
@@ -30,19 +31,48 @@ namespace ariel
 
     OrgChart &OrgChart::add_root(string parent)
     {
+        const int max = 125;
+        const int minim = 32;
+        for (size_t i = 0; i < parent.length(); i++)
+        {
+            if (parent[i] > max || parent[i]<minim)
+            {
+                throw runtime_error("valid input");
+            }
+        }
+        if (parent == " " || parent =="")
+        {
+            throw runtime_error("valid input");
+        }
+        
+        
         this->root.value = parent;
         return *this;
     }
     OrgChart &OrgChart::add_sub(string parent, string chaild)
     {
-        if(root.value.compare(parent) == 0)
+        const int max = 125;
+        const int minim = 32;
+        for (size_t i = 0; i < chaild.length(); i++)
+        {
+            if (chaild[i] > max || chaild[i]<minim)
+            {
+                throw runtime_error("valid input");
+            }
+        }
+        if (parent == "")
+        {
+            throw runtime_error("valid input");
+        }
+        
+        /*if(root.value.compare(parent) == 0)
         {
             Node temp_son;
             temp_son.value = chaild;
             root.son.push_back(temp_son);
             
             return *this;
-        }
+        }*/
         bool flag = false;
         Node *temp = findNode(&root,parent);
         if(temp == nullptr)
@@ -58,8 +88,9 @@ namespace ariel
     string *OrgChart::begin_level_order()
     {
         iter_level_order.clear();
-        iter_level_order.push_back(root.value);
-        start_level_order(root);
+        queue<Node *> q;
+        q.push(&root);
+        start_level_order(root,q);
         return &iter_level_order[0];
     }
     string *OrgChart::end_level_order()
@@ -74,7 +105,7 @@ namespace ariel
         reverse(iter_reverse_order.begin(),iter_reverse_order.end());
         return &iter_reverse_order[0];
     }
-    string *OrgChart::end_reverse_order()
+    string *OrgChart::reverse_order()
     {
         return &iter_reverse_order[iter_reverse_order.size()];
     }
@@ -88,15 +119,17 @@ namespace ariel
     {
         return &iter_preorder[iter_preorder.size()];
     }
-    void OrgChart::start_level_order(Node &root)
+    void OrgChart::start_level_order(Node &node,queue<Node *> q)
     {
-        for (size_t i = 0; i <root.son.size(); i++)
+        while (!q.empty())
         {
-            iter_level_order.push_back(root.son.at(i).value);
-        }
-        for (size_t i = 0; i < root.son.size(); i++)
-        {
-            start_level_order(root.son.at(i));
+            Node *node = q.front();
+            iter_level_order.push_back(node->value);
+            q.pop();
+            for (size_t i = 0; i <node->son.size(); i++)
+            {
+                q.push(&(node->son.at(i)));
+            }
         }
     }
     void OrgChart::start_pre_order(Node &root)
@@ -108,49 +141,54 @@ namespace ariel
         }
     }
     ostream &operator<<(ostream &out, OrgChart &root)
-    {
-        out<<root.root.value;
-        out<<endl<<"|"<<endl;
-        /*for (size_t i = 0; i < root.root.son.size(); i++)
+    {   
+        int next_level = 0;
+        int first_level = root.root.son.size();
+        out<<root.root.value<<endl;
+        for (auto it = root.begin_level_order(); it != root.end_level_order();)
         {
-            out<<root.root.son.at(i).value;
-            out<<" ";
-            for (size_t j = 0; j < root.root.son.at(i).son.size(); j++)
+            if (first_level == 0)
             {
-                out<<endl<<"|"<<endl;
-                out<<root.root.son.at(i).son.at(j).value;
-                out<<" ";
+                ++it;
             }
             
-            
-        }*/
-        out<<root.print_level(root.root);
+            for (size_t i = 0; i < first_level; i++)
+            {
+                it++;
+                if (it == root.end_level_order())
+                {
+                    break;
+                }
+                
+                Node *temp_node2 = root.findNode(&root.root,(*it));
+                if (temp_node2->son.size() > 0)
+                {
+                    next_level += temp_node2->son.size();
+                }
+                out<<(*it) <<"    ";
+            }
+            first_level = next_level;
+            if (it == root.end_level_order())
+            {
+                break;
+            }
+            out<<endl;
+        }
+        
         return out;
     }
-    string OrgChart::print_level(Node root)
+    /*void OrgChart::delete_Node(Node *node)
     {
-        string ans;
-        for (size_t i = 0; i < root.son.size(); i++)
+        for (size_t i = 0; i < node->son.size(); i++)
         {
-            if (i == root.son.size()-1)
-            {
-                ans += root.son.at(i).value;
-            }
-            else
-            {
-                ans += root.son.at(i).value;
-                ans += "-----------";
-            }  
-        }
-        for (size_t i = 0; i < root.son.size(); i++)
-        {
-            ans += "\n|";
-            ans += print_level(root.son.at(i));
-        }
-        
-        return ans;
-        
+            delete_Node(&(node->son.at(i)));
+        }    
+        delete node;
     }
+    OrgChart::~OrgChart()
+    {
+        delete_Node(&root);
+    }*/
 }
 
 

@@ -18,6 +18,9 @@ run: demo
 demo: Demo.o $(OBJECTS) 
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+main: Main.o $(OBJECTS) 
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
 test: TestCounter.o Test.o $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 

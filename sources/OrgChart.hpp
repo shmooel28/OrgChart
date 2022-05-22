@@ -1,29 +1,18 @@
 #pragma once
-#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <string>
-#include <deque>
+#include<iostream>
+#include<algorithm>
+#include<vector>
+#include<string>
 #include<queue>
+#include<iterator>
 using namespace std;
 
 namespace ariel
 {
-    class Iterator;
     struct Node
     {
         string value;
         vector<Node> son;
-
-       // ~Node()
-        //{
-          //  son.erase(son.begin(),son.end());
-            //for (size_t i = 0; i < son.size(); i++)
-            //{
-              //  Node temp = son.at(i);
-                //delete &temp;
-            //}
-        //}
     };
     class OrgChart
     {
@@ -32,32 +21,31 @@ namespace ariel
             vector<string> iter_level_order;
             vector<string> iter_reverse_order;
             vector<string> iter_preorder;
-            void start_level_order(Node &root,queue<Node *> q);
+            void start_level_order(Node &node,queue<Node *> q);
             void start_pre_order(Node &root);
+            void start_reverse_order(Node &node);
 
         public:
-            Node *findNode(Node *root,string val);
             OrgChart();
+            Node *findNode(Node *root,string const &val);
             Node *get_root(){return &root;};
-            //~OrgChart();
-            void delete_Node(Node *node);
             OrgChart &add_root(string parent);
-            OrgChart &add_sub(string parent,string child);
+            OrgChart &add_sub(string const &parent,string chaild);
 
-            friend ostream &operator<<(ostream &os, OrgChart &root);
-            string print_level(Node root);
-            
-            string *begin_level_order();
-            string *end_level_order();
+            vector<string>::iterator begin_level_order();
+            vector<string>::iterator end_level_order();
 
-            string *begin_reverse_order();
-            string *reverse_order();
+            vector<string>::iterator begin_reverse_order();
+            vector<string>::iterator reverse_order();
 
-            string *begin_preorder();
-            string *end_preorder();
+            vector<string>::iterator begin_preorder();
+            vector<string>::iterator end_preorder();
 
-            string *begin(){return begin_level_order();}
-            string *end(){return end_level_order();}
+            vector<string>::iterator begin(){return begin_level_order();}
+            vector<string>::iterator end(){return end_level_order();}
+
+            friend ostream &operator<<(ostream &out, OrgChart &root);            
+
             
     };
 }

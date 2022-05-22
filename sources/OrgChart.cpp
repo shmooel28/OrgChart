@@ -1,12 +1,13 @@
 #include "OrgChart.hpp"
 #include<algorithm>
 #include<queue>
+#include<stack>
 
 using namespace std;
 
 namespace ariel
 {
-    Node *OrgChart::findNode(Node *root, string val)
+    Node *OrgChart::findNode(Node *root, string const &val)
     {
         if (root == nullptr)
         {
@@ -40,7 +41,7 @@ namespace ariel
                 throw runtime_error("valid input");
             }
         }
-        if (parent == " " || parent =="")
+        if (parent == " " || parent.empty())
         {
             throw runtime_error("valid input");
         }
@@ -49,7 +50,7 @@ namespace ariel
         this->root.value = parent;
         return *this;
     }
-    OrgChart &OrgChart::add_sub(string parent, string chaild)
+    OrgChart &OrgChart::add_sub(string const &parent, string chaild)
     {
         const int max = 125;
         const int minim = 32;
@@ -60,20 +61,10 @@ namespace ariel
                 throw runtime_error("valid input");
             }
         }
-        if (parent == "")
+        if (parent.empty())
         {
             throw runtime_error("valid input");
         }
-        
-        /*if(root.value.compare(parent) == 0)
-        {
-            Node temp_son;
-            temp_son.value = chaild;
-            root.son.push_back(temp_son);
-            
-            return *this;
-        }*/
-        bool flag = false;
         Node *temp = findNode(&root,parent);
         if(temp == nullptr)
         {
@@ -85,39 +76,62 @@ namespace ariel
         return *this;
     }
 
-    string *OrgChart::begin_level_order()
+    vector<string>::iterator OrgChart:: begin_level_order()
     {
+        if(root.value.empty())
+        {
+            throw runtime_error("empty tree");
+        }
         iter_level_order.clear();
         queue<Node *> q;
         q.push(&root);
         start_level_order(root,q);
-        return &iter_level_order[0];
+        return iter_level_order.begin();
     }
-    string *OrgChart::end_level_order()
+    vector<string>::iterator OrgChart:: end_level_order()
     {
-        return &iter_level_order[iter_level_order.size()];
+        if(root.value.empty())
+        {
+            throw runtime_error("empty tree");
+        }
+        return iter_level_order.end();
     }
-    string *OrgChart::begin_reverse_order()
+    vector<string>::iterator OrgChart::begin_reverse_order()
     {
         iter_reverse_order.clear();
-        begin_level_order();
-        iter_reverse_order = iter_level_order;
-        reverse(iter_reverse_order.begin(),iter_reverse_order.end());
-        return &iter_reverse_order[0];
+        //iter_reverse_order.insert(iter_reverse_order.begin(), root.value);
+        start_reverse_order(root);
+        if(root.value.empty())
+        {
+            throw runtime_error("empty tree");
+        }
+        return iter_reverse_order.begin();
     }
-    string *OrgChart::reverse_order()
+    vector<string>::iterator OrgChart::reverse_order()
     {
-        return &iter_reverse_order[iter_reverse_order.size()];
+        if(root.value.empty())
+        {
+            throw runtime_error("empty tree");
+        }
+        return iter_reverse_order.end();
     }
-    string *OrgChart::begin_preorder()
+    vector<string>::iterator OrgChart::begin_preorder()
     {
         iter_preorder.clear();
         start_pre_order(root);
-        return &iter_preorder[0];
+        if(root.value.empty())
+        {
+            throw runtime_error("empty tree");
+        }
+        return iter_preorder.begin();
     }
-    string *OrgChart::end_preorder()
+    vector<string>::iterator OrgChart::end_preorder()
     {
-        return &iter_preorder[iter_preorder.size()];
+        if(root.value.empty())
+        {
+            throw runtime_error("empty tree");
+        }
+        return iter_preorder.end();
     }
     void OrgChart::start_level_order(Node &node,queue<Node *> q)
     {
@@ -130,6 +144,24 @@ namespace ariel
             {
                 q.push(&(node->son.at(i)));
             }
+        }
+    }
+    void OrgChart::start_reverse_order(Node &node)
+    {
+        vector<Node*> temp;
+        temp.push_back(&root);
+        for (size_t i = 0; i < temp.size(); i++)
+        {
+            Node* tempNode = temp[i];
+            for (int j = (int)(tempNode->son.size())-1; j >= 0; j--)
+            {
+                temp.push_back(&(tempNode->son[(size_t)j]));
+            }
+        }
+        for (int i = (int)temp.size()-1; i >= 0; i--)
+        {
+            string newName = temp[(size_t)i]->value;
+            iter_reverse_order.push_back(newName);
         }
     }
     void OrgChart::start_pre_order(Node &root)
@@ -161,7 +193,7 @@ namespace ariel
                 }
                 
                 Node *temp_node2 = root.findNode(&root.root,(*it));
-                if (temp_node2->son.size() > 0)
+                if (!temp_node2->son.empty())
                 {
                     next_level += temp_node2->son.size();
                 }
@@ -174,21 +206,12 @@ namespace ariel
             }
             out<<endl;
         }
-        
+        vector<int> te;
+        te.begin();
+        te.end();
         return out;
     }
-    /*void OrgChart::delete_Node(Node *node)
-    {
-        for (size_t i = 0; i < node->son.size(); i++)
-        {
-            delete_Node(&(node->son.at(i)));
-        }    
-        delete node;
-    }
-    OrgChart::~OrgChart()
-    {
-        delete_Node(&root);
-    }*/
+    
 }
 
 
